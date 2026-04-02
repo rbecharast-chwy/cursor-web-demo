@@ -1,0 +1,59 @@
+---
+description: Workflow rules for Cloud Agents and Background Agents working on this repo
+alwaysApply: true
+---
+
+# Agent Workflow Rules
+
+## Before starting any task
+
+1. Read `docs/demo-tasks.md` to understand the full task description, steps, and acceptance criteria.
+2. Run `npm run dev` in the background if you need to verify UI behavior.
+3. Run `npm run db:reset` if the database state looks inconsistent.
+
+## While implementing
+
+- Work in small, focused commits. One logical change per commit.
+- Add `data-testid` attributes to any new interactive elements you create.
+- Do not modify `prisma/schema.prisma` unless the task explicitly requires it.
+- Do not change existing `data-testid` values — tests depend on them.
+- Do not install new dependencies without justification in the PR description.
+
+## Before finishing — mandatory checklist
+
+Run these commands in order and fix any errors before opening a PR:
+
+```bash
+npm run lint
+npm run test
+npm run test:e2e
+```
+
+All three must pass with zero errors. Do not open a PR if any of them fails.
+
+## Opening the PR
+
+Always open a pull request when the task is complete:
+
+- **Title format:** `feat: <short description>` (or `fix:` / `chore:` as appropriate)
+- **Base branch:** `main`
+- **PR body must include:**
+  - What was changed and why
+  - Which acceptance criteria from `docs/demo-tasks.md` are now satisfied (checklist)
+  - The output of `npm run test:e2e` (copy the summary line)
+  - Screenshots or a brief description of the visual change if the task touches UI
+
+## Database
+
+- The SQLite database (`prisma/dev.db`) is local and not in the repo.
+- To reset to the seeded state: `npm run db:reset`
+- Demo credentials: `demo@example.com` / `demo1234`
+- The app always runs on port **3000**.
+
+## What NOT to do
+
+- Do not commit `.env` or `prisma/dev.db`.
+- Do not use `--no-verify` to skip git hooks.
+- Do not push directly to `main` — always use a PR.
+- Do not leave `console.log` statements in production code.
+- Do not modify files outside the scope of the current task.
