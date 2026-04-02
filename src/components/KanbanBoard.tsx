@@ -1,0 +1,180 @@
+'use client'
+
+import { useState, useMemo }         from 'react'
+import { Task, TaskStatus, COLUMNS } from '@/types'
+import TaskColumn                    from './TaskColumn'
+import TaskModal                     from './TaskModal'
+import { Search, X, Filter }         from 'lucide-react'
+import clsx                          from 'clsx'
+
+interface KanbanBoardProps {
+  initialTasks: Task[]
+}
+
+type FilterOption = 'ALL' | TaskStatus
+
+const FILTER_OPTIONS: { value: FilterOption; label: string }[] = [
+  { value: 'ALL',         label: 'All'         },
+  { value: 'BACKLOG',     label: 'Backlog'      },
+  { value: 'TODO',        label: 'To Do'        },
+  { value: 'IN_PROGRESS', label: 'In Progress'  },
+  { value: 'DONE',        label: 'Done'         },
+]
+
+export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
+  const [tasks,         setTasks]         = useState<Task[]>(initialTasks)
+  const [search,        setSearch]        = useState('')
+  const [filter,        setFilter]        = useState<FilterOption>('ALL')
+  const [modalOpen,     setModalOpen]     = useState(false)
+  const [editingTask,   setEditingTask]   = useState<Task | null>(null)
+  const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('TODO')
+
+  // Client-side filter & search
+  const visibleTasks = useMemo(() => {
+    return tasks.filter((t) => {
+      const matchesFilter = filter === 'ALL' || t.status === filter
+      const matchesSearch =
+        !search ||
+        t.title.toLowerCase().includes(search.toLowerCase()) ||
+        (t.description && t.description.toLowerCase().includes(search.toLowerCase()))
+      return matchesFilter && matchesSearch
+    })
+  }, [tasks, search, filter])
+
+  // Group by status
+  const tasksByStatus = useMemo(() => {
+    const map = {} as Record<TaskStatus, Task[]>
+    for (const col of COLUMNS) map[col.id] = []
+    for (const t of visibleTasks) map[t.status]?.push(t)
+    return map
+  }, [visibleTasks])
+
+  function openCreate(status: TaskStatus) {
+    setEditingTask(null)
+    setDefaultStatus(status)
+    setModalOpen(true)
+  }
+
+  function openEdit(task: Task) {
+    setEditingTask(task)
+    setModalOpen(true)
+  }
+
+  async function handleDelete(id: string) {
+    // TODO (backlog): replace with confirmation dialog
+    const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' })
+    if (res.ok) setTasks((prev) => prev.filter((t) => t.id !== id))
+  }
+
+  async function handleSave(data: Partial<Task>) {
+    if (editingTask) {
+      const res = await fetch(`/api/tasks/${editingTask.id}`, {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(data),
+      })
+      if (res.ok) {
+        const updated: Task = await res.json()
+        setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))
+      }
+    } else {
+      const res = await fetch('/api/tasks', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(data),
+      })
+      if (res.ok) {
+        const created: Task = await res.json()
+        setTasks((prev) => [created, ...prev])
+      }
+    }
+    setModalOpen(false)
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Toolbar */}
+      <div
+        data-testid="board-toolbar"
+        className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-6 py-4 bg-white border-b border-gray-200"
+      >
+        {/* Search */}
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <input
+            type="search"
+            placeholder="Search tasks…"
+            data-testid="search-input"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter tabs */}
+        <div
+          data-testid="filter-bar"
+          className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl"
+        >
+          <Filter className="w-3.5 h-3.5 text-gray-400 ml-1 flex-shrink-0" />
+          {FILTER_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setFilter(opt.value)}
+              data-testid={`filter-${opt.value.toLowerCase().replace('_', '-')}`}
+              className={clsx(
+                'px-3 py-1.5 text-xs font-medium rounded-lg transition',
+                filter === opt.value
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-800'
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Total visible count */}
+        <span className="text-xs text-gray-400 whitespace-nowrap hidden sm:block">
+          {visibleTasks.length} task{visibleTasks.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
+      {/* Columns */}
+      <div
+        data-testid="kanban-board"
+        className="flex-1 overflow-x-auto"
+      >
+        <div className="flex gap-4 p-6 h-full" style={{ minWidth: 'max-content' }}>
+          {COLUMNS.map((col) => (
+            <TaskColumn
+              key={col.id}
+              column={col}
+              tasks={tasksByStatus[col.id]}
+              onAdd={openCreate}
+              onEdit={openEdit}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Create / Edit modal */}
+      <TaskModal
+        open={modalOpen}
+        task={editingTask}
+        defaultStatus={defaultStatus}
+        onSave={handleSave}
+        onClose={() => setModalOpen(false)}
+      />
+    </div>
+  )
+}
