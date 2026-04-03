@@ -72,6 +72,7 @@ Title: feat|fix|chore: <short description>
 ## Constraints
 
 - Do not push directly to `main` — use a PR
+- Create a new branch and a new PR for each task. Do not reuse the same branch for multiple tasks.
 - Do not commit `.env` or `prisma/dev.db`
 - Do not change existing `data-testid` values
 - Do not install new dependencies without justification

@@ -35,6 +35,7 @@ All three must pass with zero errors. Do not open a PR if any of them fails.
 
 Always open a pull request when the task is complete:
 
+- Create a new branch and a new PR for each task. Do not reuse the same branch for multiple tasks.
 - **Title format:** `feat: <short description>` (or `fix:` / `chore:` as appropriate)
 - **Base branch:** `main`
 - **PR body must include:**
