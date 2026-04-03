@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo }         from 'react'
-import { Task, TaskStatus, COLUMNS } from '@/types'
+import { Task, TaskStatus, TaskPriority, COLUMNS } from '@/types'
 import TaskColumn                    from './TaskColumn'
 import TaskModal                     from './TaskModal'
 import { Search, X, Filter }         from 'lucide-react'
@@ -12,6 +12,7 @@ interface KanbanBoardProps {
 }
 
 type FilterOption = 'ALL' | TaskStatus
+type PriorityFilterOption = 'ALL' | TaskPriority
 
 const FILTER_OPTIONS: { value: FilterOption; label: string }[] = [
   { value: 'ALL',         label: 'All'         },
@@ -21,10 +22,18 @@ const FILTER_OPTIONS: { value: FilterOption; label: string }[] = [
   { value: 'DONE',        label: 'Done'         },
 ]
 
+const PRIORITY_FILTER_OPTIONS: { value: PriorityFilterOption; label: string }[] = [
+  { value: 'ALL',    label: 'All' },
+  { value: 'LOW',    label: 'Low' },
+  { value: 'MEDIUM', label: 'Medium' },
+  { value: 'HIGH',   label: 'High' },
+]
+
 export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
   const [tasks,         setTasks]         = useState<Task[]>(initialTasks)
   const [search,        setSearch]        = useState('')
   const [filter,        setFilter]        = useState<FilterOption>('ALL')
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilterOption>('ALL')
   const [modalOpen,     setModalOpen]     = useState(false)
   const [editingTask,   setEditingTask]   = useState<Task | null>(null)
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('TODO')
@@ -33,13 +42,14 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
   const visibleTasks = useMemo(() => {
     return tasks.filter((t) => {
       const matchesFilter = filter === 'ALL' || t.status === filter
+      const matchesPriority = priorityFilter === 'ALL' || t.priority === priorityFilter
       const matchesSearch =
         !search ||
         t.title.toLowerCase().includes(search.toLowerCase()) ||
         (t.description && t.description.toLowerCase().includes(search.toLowerCase()))
-      return matchesFilter && matchesSearch
+      return matchesFilter && matchesPriority && matchesSearch
     })
-  }, [tasks, search, filter])
+  }, [tasks, search, filter, priorityFilter])
 
   // Group by status
   const tasksByStatus = useMemo(() => {
@@ -122,24 +132,45 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
         {/* Filter tabs */}
         <div
           data-testid="filter-bar"
-          className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl"
+          className="flex flex-wrap items-center gap-2"
         >
-          <Filter className="w-3.5 h-3.5 text-gray-400 ml-1 flex-shrink-0" />
-          {FILTER_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setFilter(opt.value)}
-              data-testid={`filter-${opt.value.toLowerCase().replace('_', '-')}`}
-              className={clsx(
-                'px-3 py-1.5 text-xs font-medium rounded-lg transition',
-                filter === opt.value
-                  ? 'bg-white text-blue-700 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-800'
-              )}
-            >
-              {opt.label}
-            </button>
-          ))}
+          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+            <Filter className="w-3.5 h-3.5 text-gray-400 ml-1 flex-shrink-0" />
+            {FILTER_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setFilter(opt.value)}
+                data-testid={`filter-${opt.value.toLowerCase().replace('_', '-')}`}
+                className={clsx(
+                  'px-3 py-1.5 text-xs font-medium rounded-lg transition',
+                  filter === opt.value
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-800'
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+            <span className="text-xs font-medium text-gray-500 ml-2 mr-1">Priority:</span>
+            {PRIORITY_FILTER_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setPriorityFilter(opt.value)}
+                data-testid={`priority-filter-${opt.value.toLowerCase()}`}
+                className={clsx(
+                  'px-3 py-1.5 text-xs font-medium rounded-lg transition',
+                  priorityFilter === opt.value
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-800'
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Total visible count */}
