@@ -75,3 +75,12 @@ Title: feat|fix|chore: <short description>
 - Do not commit `.env` or `prisma/dev.db`
 - Do not change existing `data-testid` values
 - Do not install new dependencies without justification
+
+## Cursor Cloud specific instructions
+
+- The update script runs `npm install`, copies `.env.example` to `.env` (if `.env` is missing), runs Prisma migrations, seeds the database, and installs Playwright's Chromium browser. No manual setup is needed after the script completes.
+- The `db:seed` script requires `DATABASE_URL` to be set. The `.env` file provides it, but if running seed outside the Next.js context, pass it explicitly: `DATABASE_URL="file:./dev.db" npm run db:seed`.
+- Playwright E2E tests (`npm run test:e2e`) auto-start the dev server if it is not already running, so you do not need to start `npm run dev` beforehand for testing.
+- To reset the database to a clean seeded state between sessions: `npm run db:reset`.
+- Xvfb, Google Chrome, and Playwright system dependencies are pre-installed in the Cloud Agent VM. No additional system package installation is needed for headless browser testing or computer use.
+- All standard commands (`npm run dev`, `npm run lint`, `npm run test`, `npm run test:e2e`) are documented in the README and `package.json` scripts section.
