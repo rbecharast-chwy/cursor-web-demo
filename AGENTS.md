@@ -37,6 +37,10 @@ npm run test        # jest unit tests pass
 npm run test:e2e    # all Playwright tests pass
 ```
 
+Additionally:
+6. Perform manual verification with Browser / Computer Use.
+7. Capture visual evidence.
+
 Then open a pull request against `main`.
 
 ## PR format

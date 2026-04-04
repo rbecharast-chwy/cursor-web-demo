@@ -31,6 +31,9 @@ npm run test:e2e
 
 All three must pass with zero errors. Do not open a PR if any of them fails.
 
+6. Perform manual verification with Browser / Computer Use.
+7. Capture visual evidence.
+
 ## Opening the PR
 
 Always open a pull request when the task is complete:
