@@ -4,6 +4,7 @@ import { useState, useMemo }         from 'react'
 import { Task, TaskStatus, COLUMNS } from '@/types'
 import TaskColumn                    from './TaskColumn'
 import TaskModal                     from './TaskModal'
+import DeleteConfirmDialog           from './DeleteConfirmDialog'
 import { Search, X, Filter }         from 'lucide-react'
 import clsx                          from 'clsx'
 
@@ -28,6 +29,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
   const [modalOpen,     setModalOpen]     = useState(false)
   const [editingTask,   setEditingTask]   = useState<Task | null>(null)
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('TODO')
+  const [deletingTask,  setDeletingTask]  = useState<Task | null>(null)
 
   // Client-side filter & search
   const visibleTasks = useMemo(() => {
@@ -60,10 +62,16 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
     setModalOpen(true)
   }
 
-  async function handleDelete(id: string) {
-    // TODO (backlog): replace with confirmation dialog
-    const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' })
-    if (res.ok) setTasks((prev) => prev.filter((t) => t.id !== id))
+  function handleDelete(id: string) {
+    const task = tasks.find((t) => t.id === id) ?? null
+    setDeletingTask(task)
+  }
+
+  async function confirmDelete() {
+    if (!deletingTask) return
+    const res = await fetch(`/api/tasks/${deletingTask.id}`, { method: 'DELETE' })
+    if (res.ok) setTasks((prev) => prev.filter((t) => t.id !== deletingTask.id))
+    setDeletingTask(null)
   }
 
   async function handleSave(data: Partial<Task>) {
@@ -174,6 +182,14 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
         defaultStatus={defaultStatus}
         onSave={handleSave}
         onClose={() => setModalOpen(false)}
+      />
+
+      {/* Delete confirmation dialog */}
+      <DeleteConfirmDialog
+        open={deletingTask !== null}
+        taskTitle={deletingTask?.title ?? ''}
+        onCancel={() => setDeletingTask(null)}
+        onConfirm={confirmDelete}
       />
     </div>
   )
