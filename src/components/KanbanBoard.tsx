@@ -182,9 +182,10 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
       {/* Columns */}
       <div
         data-testid="kanban-board"
-        className="flex-1 overflow-x-auto"
+        className="flex-1 overflow-x-auto overflow-y-hidden"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        <div className="flex gap-4 p-6 h-full" style={{ minWidth: 'max-content' }}>
+        <div className="flex gap-4 p-6 h-full min-w-max">
           {COLUMNS.map((col) => (
             <TaskColumn
               key={col.id}
