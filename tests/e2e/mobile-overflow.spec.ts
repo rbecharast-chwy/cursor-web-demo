@@ -38,6 +38,14 @@ test.describe('Mobile layout — no horizontal overflow', () => {
     await expect(page.getByTestId('column-in-progress')).toBeAttached()
     await expect(page.getByTestId('column-done')).toBeAttached()
   })
+
+  test('each column spans the full device width', async ({ page }) => {
+    const column = page.getByTestId('column-backlog')
+    const columnWidth = await column.evaluate((el) => el.getBoundingClientRect().width)
+    const expectedWidth = 375 - 32 // 100vw - 2rem padding
+    expect(columnWidth).toBeGreaterThanOrEqual(expectedWidth - 2)
+    expect(columnWidth).toBeLessThanOrEqual(expectedWidth + 2)
+  })
 })
 
 test.describe('Desktop layout — unchanged at 1400px', () => {

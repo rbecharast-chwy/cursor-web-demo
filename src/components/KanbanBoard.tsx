@@ -190,7 +190,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
       {/* Columns */}
       <div
         data-testid="kanban-board"
-        className="flex-1 overflow-x-auto min-w-0"
+        className="flex-1 overflow-x-auto min-w-0 snap-x snap-mandatory sm:snap-none"
       >
         <div className="inline-flex gap-4 p-4 sm:p-6 h-full">
           {COLUMNS.map((col) => (

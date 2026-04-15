@@ -17,7 +17,7 @@ export default function TaskColumn({ column, tasks, onAdd, onEdit, onDelete }: T
   return (
     <div
       data-testid={`column-${column.id.toLowerCase().replace('_', '-')}`}
-      className="flex flex-col w-[280px] sm:w-72 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-200"
+      className="flex flex-col w-[calc(100vw-2rem)] sm:w-72 flex-shrink-0 snap-start bg-gray-50 rounded-2xl border border-gray-200"
     >
       {/* Column header */}
       <div className={clsx('px-4 py-3 rounded-t-2xl flex items-center justify-between', column.headerClass)}>
