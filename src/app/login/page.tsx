@@ -38,20 +38,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4 transition-colors">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
             <Layers className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">TaskFlow</h1>
-          <p className="text-gray-500 mt-1">Cloud Agent Demo · Kanban Board</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">TaskFlow</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Cloud Agent Demo · Kanban Board</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Sign in to your account</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-colors">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">Sign in to your account</h2>
 
           <form
             data-testid="login-form"
@@ -59,7 +59,7 @@ export default function LoginPage() {
             className="space-y-4"
           >
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email
               </label>
               <input
@@ -70,13 +70,13 @@ export default function LoginPage() {
                 data-testid="email-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Password
               </label>
               <input
@@ -87,7 +87,7 @@ export default function LoginPage() {
                 data-testid="password-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="••••••••"
               />
             </div>
@@ -113,9 +113,9 @@ export default function LoginPage() {
         </div>
 
         {/* Demo credentials hint */}
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
           Demo credentials are pre-filled — just click{' '}
-          <span className="font-medium text-gray-700">Sign in</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">Sign in</span>
         </p>
       </div>
     </div>

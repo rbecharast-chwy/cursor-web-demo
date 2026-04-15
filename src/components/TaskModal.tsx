@@ -58,17 +58,17 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
       {/* Modal */}
       <div
         data-testid="task-modal"
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg"
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg transition-colors"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             {task ? 'Edit Task' : 'New Task'}
           </h2>
           <button
             onClick={onClose}
             data-testid="close-modal-button"
-            className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+            className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -78,7 +78,7 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Title */}
           <div>
-            <label htmlFor="task-title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="task-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -89,13 +89,13 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What needs to be done?"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="task-description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="task-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Description
             </label>
             <textarea
@@ -105,14 +105,14 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add more details…"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm resize-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm resize-none"
             />
           </div>
 
           {/* Status + Priority row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="task-status" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="task-status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Status
               </label>
               <select
@@ -120,7 +120,7 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
                 data-testid="task-status-select"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm bg-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm bg-white dark:bg-gray-700"
               >
                 <option value="BACKLOG">Backlog</option>
                 <option value="TODO">To Do</option>
@@ -130,7 +130,7 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
             </div>
 
             <div>
-              <label htmlFor="task-priority" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="task-priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Priority
               </label>
               <select
@@ -138,7 +138,7 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
                 data-testid="task-priority-select"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm bg-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm bg-white dark:bg-gray-700"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -159,7 +159,7 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
               type="button"
               onClick={onClose}
               data-testid="cancel-task-button"
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
             >
               Cancel
             </button>
