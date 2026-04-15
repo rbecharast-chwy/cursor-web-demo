@@ -31,9 +31,9 @@ export default async function BoardPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen max-w-full overflow-x-hidden bg-gray-50 flex flex-col">
       <Header userName={user.name} />
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden min-w-0">
         <KanbanBoard initialTasks={serializedTasks} />
       </main>
     </div>
