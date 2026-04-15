@@ -110,14 +110,14 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-w-0 overflow-hidden">
       {/* Toolbar */}
       <div
         data-testid="board-toolbar"
-        className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-6 py-4 bg-white border-b border-gray-200"
+        className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-4 sm:px-6 py-4 bg-white border-b border-gray-200 min-w-0"
       >
         {/* Search */}
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative w-full sm:flex-1 sm:max-w-sm min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           <input
             type="search"
@@ -140,9 +140,9 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
         {/* Filter tabs */}
         <div
           data-testid="filter-bar"
-          className="flex flex-wrap items-center gap-2"
+          className="flex flex-wrap items-center gap-2 min-w-0 max-w-full"
         >
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+          <div className="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-xl">
             <Filter className="w-3.5 h-3.5 text-gray-400 ml-1 flex-shrink-0" />
             {FILTER_OPTIONS.map((opt) => (
               <button
@@ -161,7 +161,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+          <div className="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-xl">
             <span className="text-xs font-medium text-gray-500 ml-2 mr-1">Priority:</span>
             {PRIORITY_FILTER_OPTIONS.map((opt) => (
               <button
@@ -190,9 +190,9 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
       {/* Columns */}
       <div
         data-testid="kanban-board"
-        className="flex-1 overflow-x-auto"
+        className="flex-1 overflow-x-auto min-w-0"
       >
-        <div className="flex gap-4 p-6 h-full" style={{ minWidth: 'max-content' }}>
+        <div className="inline-flex gap-4 p-4 sm:p-6 h-full">
           {COLUMNS.map((col) => (
             <TaskColumn
               key={col.id}

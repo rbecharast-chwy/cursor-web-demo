@@ -7,6 +7,13 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Prevent horizontal overflow on the body at any viewport width */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* Custom scrollbar for columns */
 .column-scroll::-webkit-scrollbar {
   width: 4px;
