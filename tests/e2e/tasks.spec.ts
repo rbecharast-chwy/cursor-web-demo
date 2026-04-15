@@ -59,11 +59,15 @@ test.describe('Task CRUD', () => {
     await page.getByTestId('task-title-input').fill(title)
     await page.getByTestId('save-task-button').click()
 
-    // Delete it
+    // Delete it — now requires confirmation
     const card = page.getByTestId('column-todo').locator(`[data-testid^="task-card-"]`).filter({ hasText: title })
     await card.hover()
     await card.locator('[data-testid^="delete-task-"]').click()
 
+    await expect(page.getByTestId('delete-confirm-dialog')).toBeVisible()
+    await page.getByTestId('confirm-delete-button').click()
+
+    await expect(page.getByTestId('delete-confirm-dialog')).not.toBeVisible()
     await expect(page.getByTestId('column-todo').getByText(title)).not.toBeVisible()
   })
 

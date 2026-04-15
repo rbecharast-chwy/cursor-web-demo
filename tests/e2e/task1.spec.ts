@@ -30,10 +30,12 @@ test.describe('Task 1 - Task counter per column', () => {
 
     await expect(countBadge).toHaveText((initialCount + 1).toString())
 
-    // Delete the task
+    // Delete the task (requires confirmation)
     const card = todoCol.locator(`[data-testid^="task-card-"]`).filter({ hasText: title })
     await card.hover()
     await card.locator('[data-testid^="delete-task-"]').click()
+    await expect(page.getByTestId('delete-confirm-dialog')).toBeVisible()
+    await page.getByTestId('confirm-delete-button').click()
 
     await expect(countBadge).toHaveText(initialCount.toString())
   })
