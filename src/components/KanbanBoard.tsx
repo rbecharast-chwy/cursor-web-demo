@@ -114,23 +114,23 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
       {/* Toolbar */}
       <div
         data-testid="board-toolbar"
-        className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-6 py-4 bg-white border-b border-gray-200"
+        className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors"
       >
         {/* Search */}
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
           <input
             type="search"
             placeholder="Search tasks…"
             data-testid="search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50"
+            className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -142,8 +142,8 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
           data-testid="filter-bar"
           className="flex flex-wrap items-center gap-2"
         >
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-            <Filter className="w-3.5 h-3.5 text-gray-400 ml-1 flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-xl">
+            <Filter className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 ml-1 flex-shrink-0" />
             {FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -152,8 +152,8 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
                 className={clsx(
                   'px-3 py-1.5 text-xs font-medium rounded-lg transition',
                   filter === opt.value
-                    ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-800'
+                    ? 'bg-white dark:bg-gray-600 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                 )}
               >
                 {opt.label}
@@ -161,8 +161,8 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-            <span className="text-xs font-medium text-gray-500 ml-2 mr-1">Priority:</span>
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-xl">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 ml-2 mr-1">Priority:</span>
             {PRIORITY_FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -171,8 +171,8 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
                 className={clsx(
                   'px-3 py-1.5 text-xs font-medium rounded-lg transition',
                   priorityFilter === opt.value
-                    ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-800'
+                    ? 'bg-white dark:bg-gray-600 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                 )}
               >
                 {opt.label}
@@ -182,7 +182,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
         </div>
 
         {/* Total visible count */}
-        <span className="text-xs text-gray-400 whitespace-nowrap hidden sm:block">
+        <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap hidden sm:block">
           {visibleTasks.length} task{visibleTasks.length !== 1 ? 's' : ''}
         </span>
       </div>

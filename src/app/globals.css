@@ -18,3 +18,8 @@ html {
   background: #cbd5e1;
   border-radius: 2px;
 }
+
+/* Dark mode scrollbar */
+.dark .column-scroll::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}

@@ -17,8 +17,8 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
     <div
       data-testid={`task-card-${task.id}`}
       className={clsx(
-        'bg-white rounded-xl p-4 shadow-sm border border-gray-100',
-        'hover:shadow-md hover:border-gray-200 transition-all duration-150',
+        'bg-white dark:bg-gray-700 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-600',
+        'hover:shadow-md hover:border-gray-200 dark:hover:border-gray-500 transition-all duration-150',
         'group'
       )}
     >
@@ -37,7 +37,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
             onClick={() => onEdit(task)}
             data-testid={`edit-task-${task.id}`}
             title="Edit task"
-            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+            className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
@@ -45,7 +45,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
             onClick={() => onDelete(task.id)}
             data-testid={`delete-task-${task.id}`}
             title="Delete task"
-            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+            className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -55,7 +55,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       {/* Title */}
       <p
         data-testid={`task-title-${task.id}`}
-        className="text-sm font-semibold text-gray-800 leading-snug mb-1 cursor-pointer hover:text-blue-600"
+        className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-snug mb-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
         onClick={() => onEdit(task)}
       >
         {task.title}
@@ -63,7 +63,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
 
       {/* Description preview */}
       {task.description && (
-        <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
           {task.description}
         </p>
       )}
