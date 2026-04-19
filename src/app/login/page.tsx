@@ -38,11 +38,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg" aria-hidden="true">
             <Layers className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">TaskFlow</h1>
@@ -95,6 +95,7 @@ export default function LoginPage() {
             {error && (
               <p
                 data-testid="login-error"
+                role="alert"
                 className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"
               >
                 {error}
@@ -118,6 +119,6 @@ export default function LoginPage() {
           <span className="font-medium text-gray-700">Sign in</span>
         </p>
       </div>
-    </div>
+    </main>
   )
 }
