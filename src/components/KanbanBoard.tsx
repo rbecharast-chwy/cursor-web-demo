@@ -117,11 +117,12 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
         className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-6 py-4 bg-white border-b border-gray-200"
       >
         {/* Search */}
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        <div className="relative flex-1 max-w-sm" role="search">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
           <input
             type="search"
             placeholder="Search tasks…"
+            aria-label="Search tasks"
             data-testid="search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -130,9 +131,10 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
           {search && (
             <button
               onClick={() => setSearch('')}
+              aria-label="Clear search"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -142,18 +144,19 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
           data-testid="filter-bar"
           className="flex flex-wrap items-center gap-2"
         >
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-            <Filter className="w-3.5 h-3.5 text-gray-400 ml-1 flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl" role="group" aria-label="Status filter">
+            <Filter className="w-3.5 h-3.5 text-gray-600 ml-1 flex-shrink-0" aria-hidden="true" />
             {FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setFilter(opt.value)}
+                aria-pressed={filter === opt.value}
                 data-testid={`filter-${opt.value.toLowerCase().replace('_', '-')}`}
                 className={clsx(
                   'px-3 py-1.5 text-xs font-medium rounded-lg transition',
                   filter === opt.value
                     ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-800'
+                    : 'text-gray-700 hover:text-gray-900'
                 )}
               >
                 {opt.label}
@@ -161,18 +164,19 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-            <span className="text-xs font-medium text-gray-500 ml-2 mr-1">Priority:</span>
+          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl" role="group" aria-label="Priority filter">
+            <span className="text-xs font-medium text-gray-700 ml-2 mr-1" aria-hidden="true">Priority:</span>
             {PRIORITY_FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setPriorityFilter(opt.value)}
+                aria-pressed={priorityFilter === opt.value}
                 data-testid={`priority-filter-${opt.value.toLowerCase()}`}
                 className={clsx(
                   'px-3 py-1.5 text-xs font-medium rounded-lg transition',
                   priorityFilter === opt.value
                     ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-800'
+                    : 'text-gray-700 hover:text-gray-900'
                 )}
               >
                 {opt.label}
@@ -182,7 +186,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
         </div>
 
         {/* Total visible count */}
-        <span className="text-xs text-gray-400 whitespace-nowrap hidden sm:block">
+        <span className="text-xs text-gray-600 whitespace-nowrap hidden sm:block" aria-live="polite">
           {visibleTasks.length} task{visibleTasks.length !== 1 ? 's' : ''}
         </span>
       </div>

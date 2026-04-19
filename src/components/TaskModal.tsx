@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, useCallback, FormEvent } from 'react'
 import { Task, TaskStatus, TaskPriority } from '@/types'
 import { X }                              from 'lucide-react'
 
 interface TaskModalProps {
   open:          boolean
-  task:          Task | null        // null = create mode
+  task:          Task | null
   defaultStatus: TaskStatus
   onSave:        (data: Partial<Task>) => Promise<void>
   onClose:       () => void
@@ -19,8 +19,9 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
   const [priority,    setPriority]    = useState<TaskPriority>('MEDIUM')
   const [saving,      setSaving]      = useState(false)
   const [error,       setError]       = useState('')
+  const modalRef = useRef<HTMLDivElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
 
-  // Populate fields when task changes (edit mode)
   useEffect(() => {
     if (task) {
       setTitle(task.title)
@@ -36,6 +37,43 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
     setError('')
   }, [task, defaultStatus, open])
 
+  useEffect(() => {
+    if (open) {
+      previousFocusRef.current = document.activeElement as HTMLElement | null
+      requestAnimationFrame(() => {
+        const firstInput = modalRef.current?.querySelector<HTMLElement>('input, textarea, select, button')
+        firstInput?.focus()
+      })
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus()
+      previousFocusRef.current = null
+    }
+  }, [open])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation()
+      onClose()
+      return
+    }
+
+    if (e.key === 'Tab' && modalRef.current) {
+      const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+  }, [onClose])
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!title.trim()) { setError('Title is required'); return }
@@ -50,27 +88,31 @@ export default function TaskModal({ open, task, defaultStatus, onSave, onClose }
   if (!open) return null
 
   return (
-    // Backdrop
     <div
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      onKeyDown={handleKeyDown}
     >
-      {/* Modal */}
       <div
+        ref={modalRef}
         data-testid="task-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="task-modal-title"
         className="bg-white rounded-2xl shadow-2xl w-full max-w-lg"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 id="task-modal-title" className="text-lg font-semibold text-gray-900">
             {task ? 'Edit Task' : 'New Task'}
           </h2>
           <button
             onClick={onClose}
             data-testid="close-modal-button"
+            aria-label="Close modal"
             className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
