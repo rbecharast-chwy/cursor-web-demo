@@ -15,18 +15,27 @@ test.describe('Task drag and drop', () => {
 
     const backlogColumn = page.getByTestId('column-backlog')
     const todoColumn = page.getByTestId('column-todo')
+    const todoDropzone = page.getByTestId('task-dropzone-todo')
     const backlogCard = backlogColumn.locator('[data-testid^="task-card-"]').filter({ hasText: title })
 
     await expect(backlogCard).toBeVisible()
-    await backlogCard.dragTo(todoColumn)
+    const updateRequest = page.waitForResponse((response) =>
+      response.url().includes('/api/tasks/') &&
+      response.request().method() === 'PUT' &&
+      response.ok()
+    )
 
-    await expect(todoColumn.getByText(title)).toBeVisible()
-    await expect(backlogColumn.getByText(title)).not.toBeVisible()
+    await backlogCard.dragTo(todoDropzone)
+    const updateResponse = await updateRequest
+    const movedTaskId = updateResponse.url().split('/').pop() ?? ''
+
+    await expect(todoColumn.locator(`[data-testid="task-card-${movedTaskId}"]`)).toBeVisible()
+    await expect(backlogColumn.locator(`[data-testid="task-card-${movedTaskId}"]`)).toHaveCount(0)
 
     await page.reload()
     await page.getByTestId('kanban-board').waitFor({ state: 'visible' })
 
-    await expect(page.getByTestId('column-todo').getByText(title)).toBeVisible()
-    await expect(page.getByTestId('column-backlog').getByText(title)).not.toBeVisible()
+    await expect(page.getByTestId('column-todo').locator(`[data-testid="task-card-${movedTaskId}"]`)).toBeVisible()
+    await expect(page.getByTestId('column-backlog').locator(`[data-testid="task-card-${movedTaskId}"]`)).toHaveCount(0)
   })
 })

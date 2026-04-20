@@ -41,13 +41,6 @@ export default function TaskColumn({
         event.preventDefault()
         event.dataTransfer.dropEffect = 'move'
       }}
-      onDragEnter={onDragEnter}
-      onDragLeave={onDragLeave}
-      onDrop={(event) => {
-        event.preventDefault()
-        const taskId = event.dataTransfer.getData('text/plain')
-        if (taskId) onDrop(taskId, column.id)
-      }}
       className={clsx(
         'flex flex-col w-72 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-200 transition-colors',
         isDropTarget && 'border-blue-400 bg-blue-50/70'
@@ -73,7 +66,29 @@ export default function TaskColumn({
       </div>
 
       {/* Task list */}
-      <div className="flex-1 p-3 space-y-2.5 overflow-y-auto column-scroll min-h-[120px]">
+      <div
+        data-testid={`task-dropzone-${column.id.toLowerCase().replace('_', '-')}`}
+        onDragOver={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          event.dataTransfer.dropEffect = 'move'
+        }}
+        onDragEnter={(event) => {
+          event.stopPropagation()
+          onDragEnter()
+        }}
+        onDragLeave={(event) => {
+          event.stopPropagation()
+          onDragLeave()
+        }}
+        onDrop={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          const taskId = event.dataTransfer.getData('text/plain')
+          if (taskId) onDrop(taskId, column.id)
+        }}
+        className="flex-1 p-3 space-y-2.5 overflow-y-auto column-scroll min-h-[120px]"
+      >
         {tasks.length === 0 && (
           <div className="text-center py-6 text-xs text-gray-400 select-none">
             No tasks here

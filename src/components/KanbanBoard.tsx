@@ -119,13 +119,38 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
 
     if (!task || task.status === nextStatus) return
 
+    const previousStatus = task.status
+
+    setTasks((prev) =>
+      prev.map((item) =>
+        item.id === taskId
+          ? {
+              ...item,
+              status: nextStatus,
+            }
+          : item
+      )
+    )
+
     const res = await fetch(`/api/tasks/${taskId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: nextStatus }),
     })
 
-    if (!res.ok) return
+    if (!res.ok) {
+      setTasks((prev) =>
+        prev.map((item) =>
+          item.id === taskId
+            ? {
+                ...item,
+                status: previousStatus,
+              }
+            : item
+        )
+      )
+      return
+    }
 
     const updated: Task = await res.json()
     setTasks((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
