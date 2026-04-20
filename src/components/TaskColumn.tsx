@@ -9,7 +9,7 @@ interface TaskColumnProps {
   column:            Column
   tasks:             Task[]
   isDropTarget:      boolean
-  draggingTaskId:    string | null
+  draggedTaskId:     string | null
   onAdd:             (status: TaskStatus) => void
   onEdit:            (task: Task) => void
   onDelete:          (id: string) => void
@@ -24,7 +24,7 @@ export default function TaskColumn({
   column,
   tasks,
   isDropTarget,
-  draggingTaskId,
+  draggedTaskId,
   onAdd,
   onEdit,
   onDelete,
@@ -83,7 +83,7 @@ export default function TaskColumn({
           <TaskCard
             key={task.id}
             task={task}
-            isDragging={draggingTaskId === task.id}
+            isDragging={draggedTaskId === task.id}
             onEdit={onEdit}
             onDelete={onDelete}
             onDragStart={onDragStart}

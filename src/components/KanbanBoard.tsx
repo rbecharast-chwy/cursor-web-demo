@@ -119,38 +119,13 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
 
     if (!task || task.status === nextStatus) return
 
-    const previousStatus = task.status
-
-    setTasks((prev) =>
-      prev.map((item) =>
-        item.id === taskId
-          ? {
-              ...item,
-              status: nextStatus,
-            }
-          : item
-      )
-    )
-
     const res = await fetch(`/api/tasks/${taskId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: nextStatus }),
     })
 
-    if (!res.ok) {
-      setTasks((prev) =>
-        prev.map((item) =>
-          item.id === taskId
-            ? {
-                ...item,
-                status: previousStatus,
-              }
-            : item
-        )
-      )
-      return
-    }
+    if (!res.ok) return
 
     const updated: Task = await res.json()
     setTasks((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
@@ -259,13 +234,15 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
                 setDraggedTaskId(null)
                 setDropTarget(null)
               }}
-              onDragOverColumn={() => {
+              onDragEnter={() => {
                 if (!draggedTaskId) return
                 setDropTarget(col.id)
               }}
-              onDropInColumn={(status) => {
-                if (!draggedTaskId) return
-                void moveTask(draggedTaskId, status)
+              onDragLeave={() => {
+                setDropTarget((current) => (current === col.id ? null : current))
+              }}
+              onDrop={(taskId, status) => {
+                void moveTask(taskId, status)
               }}
             />
           ))}
