@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState }               from 'react'
+import { useMemo, useRef, useState }        from 'react'
 import { Task, TaskPriority, TaskStatus, COLUMNS } from '@/types'
 import DeleteConfirmDialog                 from './DeleteConfirmDialog'
 import TaskColumn                          from './TaskColumn'
@@ -41,6 +41,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
   const [deletingTask,   setDeletingTask]   = useState<Task | null>(null)
   const [draggedTaskId,  setDraggedTaskId]  = useState<string | null>(null)
   const [dropTarget,     setDropTarget]     = useState<TaskStatus | null>(null)
+  const draggedTaskIdRef = useRef<string | null>(null)
 
   // Client-side filter & search
   const visibleTasks = useMemo(() => {
@@ -116,6 +117,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
 
     setDraggedTaskId(null)
     setDropTarget(null)
+    draggedTaskIdRef.current = null
 
     if (!task || task.status === nextStatus) return
 
@@ -253,6 +255,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
               onDelete={handleDelete}
               onDragStart={(task) => {
                 setDraggedTaskId(task.id)
+                draggedTaskIdRef.current = task.id
                 setDropTarget(null)
               }}
               onDragEnd={() => {
@@ -267,7 +270,7 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
                 setDropTarget((current) => (current === col.id ? null : current))
               }}
               onDrop={(taskId, status) => {
-                void moveTask(taskId, status)
+                void moveTask(taskId || draggedTaskIdRef.current || '', status)
               }}
             />
           ))}

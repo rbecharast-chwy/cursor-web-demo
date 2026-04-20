@@ -85,7 +85,7 @@ export default function TaskColumn({
           event.preventDefault()
           event.stopPropagation()
           const taskId = event.dataTransfer.getData('text/plain')
-          if (taskId) onDrop(taskId, column.id)
+          onDrop(taskId, column.id)
         }}
         className="flex-1 p-3 space-y-2.5 overflow-y-auto column-scroll min-h-[120px]"
       >
