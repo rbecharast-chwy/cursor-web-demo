@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useMemo }         from 'react'
-import { Task, TaskStatus, TaskPriority, COLUMNS } from '@/types'
-import TaskColumn                    from './TaskColumn'
-import TaskModal                     from './TaskModal'
-import DeleteConfirmDialog           from './DeleteConfirmDialog'
-import { Search, X, Filter }         from 'lucide-react'
-import clsx                          from 'clsx'
+import { useMemo, useState }               from 'react'
+import { Task, TaskPriority, TaskStatus, COLUMNS } from '@/types'
+import DeleteConfirmDialog                 from './DeleteConfirmDialog'
+import TaskColumn                          from './TaskColumn'
+import TaskModal                           from './TaskModal'
+import { Filter, Search, X }               from 'lucide-react'
+import clsx                                from 'clsx'
 
 interface KanbanBoardProps {
   initialTasks: Task[]
@@ -31,14 +31,16 @@ const PRIORITY_FILTER_OPTIONS: { value: PriorityFilterOption; label: string }[] 
 ]
 
 export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
-  const [tasks,         setTasks]         = useState<Task[]>(initialTasks)
-  const [search,        setSearch]        = useState('')
-  const [filter,        setFilter]        = useState<FilterOption>('ALL')
+  const [tasks,          setTasks]          = useState<Task[]>(initialTasks)
+  const [search,         setSearch]         = useState('')
+  const [filter,         setFilter]         = useState<FilterOption>('ALL')
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilterOption>('ALL')
-  const [modalOpen,     setModalOpen]     = useState(false)
-  const [editingTask,   setEditingTask]   = useState<Task | null>(null)
-  const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('TODO')
-  const [deletingTask,  setDeletingTask]  = useState<Task | null>(null)
+  const [modalOpen,      setModalOpen]      = useState(false)
+  const [editingTask,    setEditingTask]    = useState<Task | null>(null)
+  const [defaultStatus,  setDefaultStatus]  = useState<TaskStatus>('TODO')
+  const [deletingTask,   setDeletingTask]   = useState<Task | null>(null)
+  const [draggedTaskId,  setDraggedTaskId]  = useState<string | null>(null)
+  const [dropTarget,     setDropTarget]     = useState<TaskStatus | null>(null)
 
   // Client-side filter & search
   const visibleTasks = useMemo(() => {
@@ -107,6 +109,51 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
       }
     }
     setModalOpen(false)
+  }
+
+  async function moveTask(taskId: string, nextStatus: TaskStatus) {
+    const task = tasks.find((item) => item.id === taskId)
+
+    setDraggedTaskId(null)
+    setDropTarget(null)
+
+    if (!task || task.status === nextStatus) return
+
+    const previousStatus = task.status
+
+    setTasks((prev) =>
+      prev.map((item) =>
+        item.id === taskId
+          ? {
+              ...item,
+              status: nextStatus,
+            }
+          : item
+      )
+    )
+
+    const res = await fetch(`/api/tasks/${taskId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: nextStatus }),
+    })
+
+    if (!res.ok) {
+      setTasks((prev) =>
+        prev.map((item) =>
+          item.id === taskId
+            ? {
+                ...item,
+                status: previousStatus,
+              }
+            : item
+        )
+      )
+      return
+    }
+
+    const updated: Task = await res.json()
+    setTasks((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
   }
 
   return (
@@ -199,9 +246,27 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
               key={col.id}
               column={col}
               tasks={tasksByStatus[col.id]}
+              draggedTaskId={draggedTaskId}
+              isDropTarget={dropTarget === col.id}
               onAdd={openCreate}
               onEdit={openEdit}
               onDelete={handleDelete}
+              onDragStart={(task) => {
+                setDraggedTaskId(task.id)
+                setDropTarget(null)
+              }}
+              onDragEnd={() => {
+                setDraggedTaskId(null)
+                setDropTarget(null)
+              }}
+              onDragOverColumn={() => {
+                if (!draggedTaskId) return
+                setDropTarget(col.id)
+              }}
+              onDropInColumn={(status) => {
+                if (!draggedTaskId) return
+                void moveTask(draggedTaskId, status)
+              }}
             />
           ))}
         </div>

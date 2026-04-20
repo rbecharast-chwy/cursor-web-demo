@@ -6,18 +6,52 @@ import { Plus }                     from 'lucide-react'
 import clsx                         from 'clsx'
 
 interface TaskColumnProps {
-  column:   Column
-  tasks:    Task[]
-  onAdd:    (status: TaskStatus) => void
-  onEdit:   (task: Task) => void
-  onDelete: (id: string) => void
+  column:            Column
+  tasks:             Task[]
+  isDropTarget:      boolean
+  draggingTaskId:    string | null
+  onAdd:             (status: TaskStatus) => void
+  onEdit:            (task: Task) => void
+  onDelete:          (id: string) => void
+  onDragStart:       (task: Task) => void
+  onDragEnd:         () => void
+  onDragEnter:       () => void
+  onDragLeave:       () => void
+  onDrop:            (taskId: string, status: TaskStatus) => void
 }
 
-export default function TaskColumn({ column, tasks, onAdd, onEdit, onDelete }: TaskColumnProps) {
+export default function TaskColumn({
+  column,
+  tasks,
+  isDropTarget,
+  draggingTaskId,
+  onAdd,
+  onEdit,
+  onDelete,
+  onDragStart,
+  onDragEnd,
+  onDragEnter,
+  onDragLeave,
+  onDrop,
+}: TaskColumnProps) {
   return (
     <div
       data-testid={`column-${column.id.toLowerCase().replace('_', '-')}`}
-      className="flex flex-col w-72 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-200"
+      onDragOver={(event) => {
+        event.preventDefault()
+        event.dataTransfer.dropEffect = 'move'
+      }}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDrop={(event) => {
+        event.preventDefault()
+        const taskId = event.dataTransfer.getData('text/plain')
+        if (taskId) onDrop(taskId, column.id)
+      }}
+      className={clsx(
+        'flex flex-col w-72 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-200 transition-colors',
+        isDropTarget && 'border-blue-400 bg-blue-50/70'
+      )}
     >
       {/* Column header */}
       <div className={clsx('px-4 py-3 rounded-t-2xl flex items-center justify-between', column.headerClass)}>
@@ -49,8 +83,11 @@ export default function TaskColumn({ column, tasks, onAdd, onEdit, onDelete }: T
           <TaskCard
             key={task.id}
             task={task}
+            isDragging={draggingTaskId === task.id}
             onEdit={onEdit}
             onDelete={onDelete}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
           />
         ))}
       </div>

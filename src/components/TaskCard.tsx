@@ -5,22 +5,41 @@ import { Pencil, Trash2 }        from 'lucide-react'
 import clsx                      from 'clsx'
 
 interface TaskCardProps {
-  task:     Task
-  onEdit:   (task: Task) => void
-  onDelete: (id: string) => void
+  task:        Task
+  isDragging?: boolean
+  onEdit:      (task: Task) => void
+  onDelete:    (id: string) => void
+  onDragStart: (task: Task) => void
+  onDragEnd:   () => void
 }
 
-export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+export default function TaskCard({
+  task,
+  isDragging = false,
+  onEdit,
+  onDelete,
+  onDragStart,
+  onDragEnd,
+}: TaskCardProps) {
   const priority = PRIORITY_CONFIG[task.priority]
 
   return (
     <div
       data-testid={`task-card-${task.id}`}
+      draggable
+      onDragStart={(event) => {
+        event.dataTransfer.effectAllowed = 'move'
+        event.dataTransfer.setData('text/plain', task.id)
+        onDragStart(task)
+      }}
+      onDragEnd={onDragEnd}
       className={clsx(
         'bg-white rounded-xl p-4 shadow-sm border border-gray-100',
         'hover:shadow-md hover:border-gray-200 transition-all duration-150',
-        'group'
+        'group cursor-grab active:cursor-grabbing',
+        isDragging && 'opacity-60 shadow-md'
       )}
+      aria-grabbed={isDragging}
     >
       {/* Priority badge */}
       <div className="flex items-start justify-between gap-2 mb-2">
