@@ -6,18 +6,34 @@ import { Plus }                     from 'lucide-react'
 import clsx                         from 'clsx'
 
 interface TaskColumnProps {
-  column:   Column
-  tasks:    Task[]
-  onAdd:    (status: TaskStatus) => void
-  onEdit:   (task: Task) => void
-  onDelete: (id: string) => void
+  column:        Column
+  tasks:         Task[]
+  isDropTarget:  boolean
+  draggedTaskId: string | null
+  onAdd:         (status: TaskStatus) => void
+  onEdit:        (task: Task) => void
+  onDelete:      (id: string) => void
+  onPointerDown: (task: Task, event: React.PointerEvent<HTMLDivElement>) => void
 }
 
-export default function TaskColumn({ column, tasks, onAdd, onEdit, onDelete }: TaskColumnProps) {
+export default function TaskColumn({
+  column,
+  tasks,
+  isDropTarget,
+  draggedTaskId,
+  onAdd,
+  onEdit,
+  onDelete,
+  onPointerDown,
+}: TaskColumnProps) {
   return (
     <div
       data-testid={`column-${column.id.toLowerCase().replace('_', '-')}`}
-      className="flex flex-col w-72 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-200"
+      data-column-status={column.id}
+      className={clsx(
+        'flex flex-col w-72 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-200 transition-colors',
+        isDropTarget && 'border-blue-400 bg-blue-50/70'
+      )}
     >
       {/* Column header */}
       <div className={clsx('px-4 py-3 rounded-t-2xl flex items-center justify-between', column.headerClass)}>
@@ -39,7 +55,10 @@ export default function TaskColumn({ column, tasks, onAdd, onEdit, onDelete }: T
       </div>
 
       {/* Task list */}
-      <div className="flex-1 p-3 space-y-2.5 overflow-y-auto column-scroll min-h-[120px]">
+      <div
+        data-testid={`task-dropzone-${column.id.toLowerCase().replace('_', '-')}`}
+        className="flex-1 p-3 space-y-2.5 overflow-y-auto column-scroll min-h-[120px]"
+      >
         {tasks.length === 0 && (
           <div className="text-center py-6 text-xs text-gray-400 select-none">
             No tasks here
@@ -49,8 +68,10 @@ export default function TaskColumn({ column, tasks, onAdd, onEdit, onDelete }: T
           <TaskCard
             key={task.id}
             task={task}
+            isDragging={draggedTaskId === task.id}
             onEdit={onEdit}
             onDelete={onDelete}
+            onPointerDown={onPointerDown}
           />
         ))}
       </div>

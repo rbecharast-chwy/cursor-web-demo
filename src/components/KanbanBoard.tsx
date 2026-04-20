@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useMemo }         from 'react'
-import { Task, TaskStatus, TaskPriority, COLUMNS } from '@/types'
-import TaskColumn                    from './TaskColumn'
-import TaskModal                     from './TaskModal'
-import DeleteConfirmDialog           from './DeleteConfirmDialog'
-import { Search, X, Filter }         from 'lucide-react'
-import clsx                          from 'clsx'
+import type { PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Task, TaskPriority, TaskStatus, COLUMNS } from '@/types'
+import DeleteConfirmDialog                 from './DeleteConfirmDialog'
+import TaskColumn                          from './TaskColumn'
+import TaskModal                           from './TaskModal'
+import { Filter, Search, X }               from 'lucide-react'
+import clsx                                from 'clsx'
 
 interface KanbanBoardProps {
   initialTasks: Task[]
@@ -31,14 +32,20 @@ const PRIORITY_FILTER_OPTIONS: { value: PriorityFilterOption; label: string }[] 
 ]
 
 export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
-  const [tasks,         setTasks]         = useState<Task[]>(initialTasks)
-  const [search,        setSearch]        = useState('')
-  const [filter,        setFilter]        = useState<FilterOption>('ALL')
+  const [tasks,          setTasks]          = useState<Task[]>(initialTasks)
+  const [search,         setSearch]         = useState('')
+  const [filter,         setFilter]         = useState<FilterOption>('ALL')
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilterOption>('ALL')
-  const [modalOpen,     setModalOpen]     = useState(false)
-  const [editingTask,   setEditingTask]   = useState<Task | null>(null)
-  const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('TODO')
-  const [deletingTask,  setDeletingTask]  = useState<Task | null>(null)
+  const [modalOpen,      setModalOpen]      = useState(false)
+  const [editingTask,    setEditingTask]    = useState<Task | null>(null)
+  const [defaultStatus,  setDefaultStatus]  = useState<TaskStatus>('TODO')
+  const [deletingTask,   setDeletingTask]   = useState<Task | null>(null)
+  const [draggedTaskId,  setDraggedTaskId]  = useState<string | null>(null)
+  const [dropTarget,     setDropTarget]     = useState<TaskStatus | null>(null)
+  const [pointerDragTaskId, setPointerDragTaskId] = useState<string | null>(null)
+  const pointerDragTaskIdRef = useRef<string | null>(null)
+  const dropTargetRef = useRef<TaskStatus | null>(null)
+  const cleanupPointerDragRef = useRef<(() => void) | null>(null)
 
   // Client-side filter & search
   const visibleTasks = useMemo(() => {
@@ -107,6 +114,121 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
       }
     }
     setModalOpen(false)
+  }
+
+  const moveTask = useCallback(async (taskId: string, nextStatus: TaskStatus) => {
+    const task = tasks.find((item) => item.id === taskId)
+
+    setDraggedTaskId(null)
+    setDropTarget(null)
+    setPointerDragTaskId(null)
+    pointerDragTaskIdRef.current = null
+
+    if (!task || task.status === nextStatus) return
+
+    const previousStatus = task.status
+
+    setTasks((prev) =>
+      prev.map((item) =>
+        item.id === taskId
+          ? {
+              ...item,
+              status: nextStatus,
+            }
+          : item
+      )
+    )
+
+    const res = await fetch(`/api/tasks/${taskId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: nextStatus }),
+    })
+
+    if (!res.ok) {
+      setTasks((prev) =>
+        prev.map((item) =>
+          item.id === taskId
+            ? {
+                ...item,
+                status: previousStatus,
+              }
+            : item
+        )
+      )
+      return
+    }
+
+    const updated: Task = await res.json()
+    setTasks((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+  }, [tasks])
+
+  useEffect(() => {
+    if (!pointerDragTaskId) return
+
+    const previousUserSelect = document.body.style.userSelect
+    const previousCursor = document.body.style.cursor
+
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'grabbing'
+
+    return () => {
+      document.body.style.userSelect = previousUserSelect
+      document.body.style.cursor = previousCursor
+    }
+  }, [pointerDragTaskId])
+
+  useEffect(() => {
+    dropTargetRef.current = dropTarget
+  }, [dropTarget])
+
+  function beginPointerDrag(task: Task, event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) return
+    const target = event.target as HTMLElement
+    if (target.closest('button,[data-no-drag="true"]')) return
+    event.preventDefault()
+
+    cleanupPointerDragRef.current?.()
+
+    function handlePointerMove(pointerEvent: PointerEvent) {
+      const element = document.elementFromPoint(pointerEvent.clientX, pointerEvent.clientY) as HTMLElement | null
+      const column = element?.closest('[data-column-status]') as HTMLElement | null
+      const nextStatus = (column?.dataset.columnStatus as TaskStatus | undefined) ?? null
+
+      dropTargetRef.current = nextStatus
+      setDropTarget(nextStatus)
+    }
+
+    function handlePointerUp() {
+      const activeTaskId = pointerDragTaskIdRef.current
+      const nextStatus = dropTargetRef.current
+
+      setPointerDragTaskId(null)
+      pointerDragTaskIdRef.current = null
+      cleanupPointerDragRef.current?.()
+      cleanupPointerDragRef.current = null
+
+      if (!activeTaskId || !nextStatus) {
+        setDraggedTaskId(null)
+        setDropTarget(null)
+        return
+      }
+
+      void moveTask(activeTaskId, nextStatus)
+    }
+
+    cleanupPointerDragRef.current = () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+
+    setPointerDragTaskId(task.id)
+    pointerDragTaskIdRef.current = task.id
+    setDraggedTaskId(task.id)
+    setDropTarget(null)
   }
 
   return (
@@ -199,9 +321,12 @@ export default function KanbanBoard({ initialTasks }: KanbanBoardProps) {
               key={col.id}
               column={col}
               tasks={tasksByStatus[col.id]}
+              draggedTaskId={draggedTaskId}
+              isDropTarget={dropTarget === col.id}
               onAdd={openCreate}
               onEdit={openEdit}
               onDelete={handleDelete}
+              onPointerDown={beginPointerDrag}
             />
           ))}
         </div>
