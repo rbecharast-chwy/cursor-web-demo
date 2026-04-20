@@ -1,16 +1,16 @@
 'use client'
 
-import { Task, PRIORITY_CONFIG } from '@/types'
-import { Pencil, Trash2 }        from 'lucide-react'
-import clsx                      from 'clsx'
+import type { PointerEvent as ReactPointerEvent } from 'react'
+import { Task, PRIORITY_CONFIG }            from '@/types'
+import { Pencil, Trash2 }                   from 'lucide-react'
+import clsx                                 from 'clsx'
 
 interface TaskCardProps {
-  task:        Task
-  isDragging?: boolean
-  onEdit:      (task: Task) => void
-  onDelete:    (id: string) => void
-  onDragStart: (task: Task) => void
-  onDragEnd:   () => void
+  task:          Task
+  isDragging?:   boolean
+  onEdit:        (task: Task) => void
+  onDelete:      (id: string) => void
+  onPointerDown: (task: Task, event: ReactPointerEvent<HTMLDivElement>) => void
 }
 
 export default function TaskCard({
@@ -18,25 +18,18 @@ export default function TaskCard({
   isDragging = false,
   onEdit,
   onDelete,
-  onDragStart,
-  onDragEnd,
+  onPointerDown,
 }: TaskCardProps) {
   const priority = PRIORITY_CONFIG[task.priority]
 
   return (
     <div
       data-testid={`task-card-${task.id}`}
-      draggable
-      onDragStart={(event) => {
-        event.dataTransfer.effectAllowed = 'move'
-        event.dataTransfer.setData('text/plain', task.id)
-        onDragStart(task)
-      }}
-      onDragEnd={onDragEnd}
+      onPointerDown={(event) => onPointerDown(task, event)}
       className={clsx(
         'bg-white rounded-xl p-4 shadow-sm border border-gray-100',
         'hover:shadow-md hover:border-gray-200 transition-all duration-150',
-        'group cursor-grab active:cursor-grabbing',
+        'group cursor-grab active:cursor-grabbing select-none',
         isDragging && 'opacity-60 shadow-md'
       )}
       aria-grabbed={isDragging}
@@ -54,6 +47,7 @@ export default function TaskCard({
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit(task)}
+            data-no-drag="true"
             data-testid={`edit-task-${task.id}`}
             title="Edit task"
             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
@@ -62,6 +56,7 @@ export default function TaskCard({
           </button>
           <button
             onClick={() => onDelete(task.id)}
+            data-no-drag="true"
             data-testid={`delete-task-${task.id}`}
             title="Delete task"
             className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"

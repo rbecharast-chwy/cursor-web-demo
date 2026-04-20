@@ -6,18 +6,14 @@ import { Plus }                     from 'lucide-react'
 import clsx                         from 'clsx'
 
 interface TaskColumnProps {
-  column:            Column
-  tasks:             Task[]
-  isDropTarget:      boolean
-  draggedTaskId:     string | null
-  onAdd:             (status: TaskStatus) => void
-  onEdit:            (task: Task) => void
-  onDelete:          (id: string) => void
-  onDragStart:       (task: Task) => void
-  onDragEnd:         () => void
-  onDragEnter:       () => void
-  onDragLeave:       () => void
-  onDrop:            (taskId: string, status: TaskStatus) => void
+  column:        Column
+  tasks:         Task[]
+  isDropTarget:  boolean
+  draggedTaskId: string | null
+  onAdd:         (status: TaskStatus) => void
+  onEdit:        (task: Task) => void
+  onDelete:      (id: string) => void
+  onPointerDown: (task: Task, event: React.PointerEvent<HTMLDivElement>) => void
 }
 
 export default function TaskColumn({
@@ -28,19 +24,12 @@ export default function TaskColumn({
   onAdd,
   onEdit,
   onDelete,
-  onDragStart,
-  onDragEnd,
-  onDragEnter,
-  onDragLeave,
-  onDrop,
+  onPointerDown,
 }: TaskColumnProps) {
   return (
     <div
       data-testid={`column-${column.id.toLowerCase().replace('_', '-')}`}
-      onDragOver={(event) => {
-        event.preventDefault()
-        event.dataTransfer.dropEffect = 'move'
-      }}
+      data-column-status={column.id}
       className={clsx(
         'flex flex-col w-72 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-200 transition-colors',
         isDropTarget && 'border-blue-400 bg-blue-50/70'
@@ -68,25 +57,6 @@ export default function TaskColumn({
       {/* Task list */}
       <div
         data-testid={`task-dropzone-${column.id.toLowerCase().replace('_', '-')}`}
-        onDragOver={(event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          event.dataTransfer.dropEffect = 'move'
-        }}
-        onDragEnter={(event) => {
-          event.stopPropagation()
-          onDragEnter()
-        }}
-        onDragLeave={(event) => {
-          event.stopPropagation()
-          onDragLeave()
-        }}
-        onDrop={(event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          const taskId = event.dataTransfer.getData('text/plain')
-          onDrop(taskId, column.id)
-        }}
         className="flex-1 p-3 space-y-2.5 overflow-y-auto column-scroll min-h-[120px]"
       >
         {tasks.length === 0 && (
@@ -101,8 +71,7 @@ export default function TaskColumn({
             isDragging={draggedTaskId === task.id}
             onEdit={onEdit}
             onDelete={onDelete}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
+            onPointerDown={onPointerDown}
           />
         ))}
       </div>

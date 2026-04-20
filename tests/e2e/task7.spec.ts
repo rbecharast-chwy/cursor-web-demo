@@ -25,7 +25,18 @@ test.describe('Task drag and drop', () => {
       response.ok()
     )
 
-    await backlogCard.dragTo(todoDropzone)
+    const sourceBox = await backlogCard.boundingBox()
+    const targetBox = await todoDropzone.boundingBox()
+
+    if (!sourceBox || !targetBox) throw new Error('Missing drag source or target bounds')
+
+    await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + Math.min(targetBox.height / 2, 120), {
+      steps: 12,
+    })
+    await page.mouse.up()
+
     const updateResponse = await updateRequest
     const movedTaskId = updateResponse.url().split('/').pop() ?? ''
 
